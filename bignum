@@ -1,0 +1,276 @@
+/*
+I pledge that this assignment has been completed in compliance with the Graduate Honor Code
+and that I have neither given nor received any unauthorized aid on this work. Further, I did not
+use any source codes from any other unauthorized sources, either modified or unmodified. The
+submitted programming assignment is solely done by me and is my original work.
+author: Qirui LIU
+DATE: 2015/10/12
+ */
+package bignum;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Scanner;
+import java.util.Stack;
+public class bignum {
+private static Scanner sc;
+public static void main(String[] args){
+	 String file_name = "p1.txt";
+	 readfile(file_name);
+ }
+ public static void readfile(String filename){
+	 int T=1;
+	 boolean flag=true;
+	  try {
+		 sc = new Scanner(new File(filename));
+	    if(!sc.hasNextLine())
+	    	System.out.println("File is empty");
+	    else{
+	   System.out.println("File is read");
+	    while(sc.hasNextLine()){
+	    	ArrayList<String> scArray = new ArrayList<String>();
+	    	String str = sc.nextLine().trim();
+	    	if (!str.equals("") && flag==true){
+		    scArray.add(str);
+		    System.out.println("("+T+")"+"Input:"+str);
+		    String[] tokens=mystring(str);
+		    String[] tokens2=mystring2(str);
+		    if(tokens==null){
+		    	System.out.println("Output:Error");
+		    	T++;
+		    	continue;}
+		    System.out.print("Output:");
+		    showRPN(tokens,tokens2); 
+		    T++;
+		    flag=false;
+		    }
+	    	else if(str.equals("") && flag==false){
+	    		flag=true;
+	    	}
+	    	else if(!str.equals("") && flag==false){
+	    		System.out.println("("+T+")"+"Input:"+str);
+	    		System.out.println("Output:Error");
+	    		T++;
+	    		flag=true;
+	    	}
+	    	}
+		    }
+	  }
+ catch (IOException e) {
+		        System.out.println("Error");;
+		    }
+	  sc.close();
+	  }
+ public static String[] mystring(String str){
+	 String[] tokens = str.split(" ");
+	 String operators = "+*^"; 
+	 int countoperate=0;
+	 int countnumber=0;
+	 for (String token:tokens) {
+		 if (operators.contains(token)) {  
+			 countoperate++;
+			   } 
+		 else {  
+			 countnumber++;
+			   }
+	 }
+	 for(int i=0; i<tokens.length; i++){
+		 tokens[i]=tokens[i].replaceFirst("^0+(?!$)", "");}
+	 if(countnumber==(countoperate+1))
+	 {
+		 return tokens;
+	 }
+	 else return null;
+ }
+ public static String[] mystring2(String str){
+	 String[] tokens2 = str.split(" ");
+		 return tokens2;
+ }
+public  static void showRPN(String[] tokens,String[] tokens2) {
+	  String returnshow = null;
+	  String returnValue = null;  
+	  String operators = "+*^";
+	  Stack<String> stack1 = new Stack<String>();  
+	  try{
+	  for (String t : tokens) {  
+		   if (!operators.contains(t)) {  
+		    stack1.push(t);  
+		   } else { 
+			String a = stack1.pop();  
+			String b = stack1.pop();    
+	    switch (t) {  
+	    case "+":  
+	    	stack1.push("("+a+"+"+b+")"); 
+	     break;  
+	    case "*":  
+	     stack1.push("("+a+"*"+b+")");   
+	     break;  
+	    case "^":  
+	     stack1.push("("+b+"^"+a+")"); 
+	     break;  
+	    }
+	   }  
+	  } 
+	  returnshow = stack1.pop();  
+	  System.out.println(returnshow+"=");
+	  for (String t : tokens2) {  
+		   if (!operators.contains(t)) {  
+		    stack1.push(t);  
+		   } else { 
+			String a = stack1.pop();
+			//System.out.println("a="+a);
+			String b = stack1.pop(); 
+			//System.out.println("b="+b);
+		    switch (t) {  
+		    case "+":  
+		     stack1.push((add(a,b)));
+		     //System.out.println("add="+add(a,b));
+		     break;  
+		    case "*": 
+		    stack1.push(multiply(a,b)); 
+		    //System.out.println("mul="+multiply(a,b));
+		    break;  
+		    case "^":
+		     stack1.push(power(b,a));  
+		     break;  
+		    }  
+		   }  
+		  } 
+      returnValue = (stack1.pop());  
+      System.out.println(returnValue);
+	  }
+	 catch(Exception e){
+	 System.out.println("exceptionError");
+}
+} 
+ public static String add(String a, String b){
+	 Integer carry = 0;
+     ArrayList<String> res = new ArrayList<String>();
+     int i = a.length() - 1;
+     //System.out.println("a.length="+a.length());
+     int j = b.length() - 1;
+     //System.out.println("b.length="+b.length());
+     while(true){
+		 if(j>=0 && i>=0){
+         int i1 = Integer.parseInt(Character.toString(a.charAt(i)));
+         int i2 = Integer.parseInt(Character.toString(b.charAt(j)));
+         if(i1>=0 && i1<=9 && i2>=0 && i2<=9){
+         Integer i3  = i1 + i2 + carry;
+         if(i3 > 9){
+             carry = 1;
+             i3 = i3 - 10;
+         }else carry = 0;
+         res.add(i3.toString());
+         i--;
+         j--;
+         }
+         else{
+     		System.out.println("Output:Error");
+     	}
+         }
+		 else if(j>=0 && i<0){
+         int i2 = Integer.parseInt(Character.toString(b.charAt(j)));
+         if(i2>=0 && i2<=9){
+         Integer i3  = i2 + carry;
+         if(i3 > 9){
+             carry = 1;
+             i3 = i3 - 10;
+         }else carry = 0;
+         res.add(i3.toString());
+         i--;
+         j--;
+         }
+         else{
+     		System.out.println("Output:Error");
+     	}
+			}
+		 else if(i>=0 && j<0){
+		 int i1 = Integer.parseInt(Character.toString(a.charAt(i)));
+		 if(i1>=0 && i1<=9){
+         Integer i3  =i1 + carry;
+         if(i3 > 9){
+             carry = 1;
+             i3 = i3 - 10;
+         }else carry = 0;
+         res.add(i3.toString());
+         i--;
+         j--;
+		 }
+		 else{
+     		System.out.println("Output:Error");
+     	}
+			}
+		 else if(i < 0 && j < 0){
+			if(carry==1)
+             res.add(carry.toString());
+             break;
+			
+     }
+ } 
+     Collections.reverse(res);
+     StringBuilder builder = new StringBuilder();
+     for(String s : res) {
+         builder.append(s);
+     }
+     while(builder.charAt(0) == '0' && builder.length()> 1){
+	        builder.deleteCharAt(0);
+	    }
+	    String add=builder.toString();
+     //System.out.println(add);
+     return add;
+    
+ }
+ 
+ //http://www.programcreek.com/2014/05/leetcode-multiply-strings-java/
+ public static String multiply(String num1, String num2) {
+     String n1 = new StringBuilder(num1).reverse().toString();
+     String n2 = new StringBuilder(num2).reverse().toString();
+  
+     int[] d = new int[num1.length()+num2.length()];
+  
+     //multiply each digit and sum at the corresponding positions
+     for(int i=0; i<n1.length(); i++){
+         for(int j=0; j<n2.length(); j++){
+             d[i+j] += (n1.charAt(i)-'0') * (n2.charAt(j)-'0');
+         }
+     }
+  
+     StringBuilder sb = new StringBuilder();
+  
+     //calculate each digit
+     for(int i=0; i<d.length; i++){
+         int mod = d[i]%10;
+         int carry = d[i]/10;
+         if(i+1<d.length){
+             d[i+1] += carry;
+         }
+         sb.insert(0, mod);
+     }
+  
+     //remove front 0's
+     while(sb.charAt(0) == '0' && sb.length()> 1){
+         sb.deleteCharAt(0);
+     }
+     String multi=sb.toString();
+     return multi;
+ }
+
+ public static String power(String num1, String num2){
+   	 String power1 ="1";
+   	 int num= Integer.parseInt(num2);
+   	 //System.out.println(num);
+   	 if(num2=="0"){
+   		 power1="1";
+   	 }
+   	 else if(num1=="0"){
+   		 power1="0";
+   	 }
+   	 else{
+   	 for(int i=0;i<num;i++){
+   		 power1=multiply(power1,num1);
+   	 }
+   	 }
+   	 return power1;
+    }
+}
