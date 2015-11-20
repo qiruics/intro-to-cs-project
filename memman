@@ -1,0 +1,182 @@
+/*
+ * “I pledge that this assignment has been completed in compliance with the Graduate Honor Code
+ *and that I have neither given nor received any unauthorized aid on this work. Further, I did not
+ *use any source codes from any other unauthorized sources, either modified or unmodified. The
+ *submitted programming assignment is solely done by me and is my original work.” 
+ *author: Qirui LIU
+ *DATE:   2015/11/1
+ *
+ */
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.util.Scanner;	
+public class memman {
+	public static int poolSize;
+	public static int numOfRecords;
+	public static String commandFileName;
+	public static void main(String[] args) throws UnsupportedEncodingException{ 
+				poolSize = Integer.parseInt(args[0]);
+				numOfRecords = Integer.parseInt(args[1]);
+				commandFileName = args[2];
+	    byte[] memoryPool= new byte[poolSize];
+	    int [] recordArray = new int [numOfRecords];
+	    for(int i=0;i<numOfRecords;i++){
+	    	recordArray[i]=-1;
+	    }
+	    DoublyLinkedList doublelinkedlist = new DoublyLinkedList(0,poolSize);
+		File file = new File(commandFileName);
+	    try {
+	        Scanner sc = new Scanner(file);
+	        while (sc.hasNextLine()) {
+	            String str = sc.nextLine().trim();//read command
+	            String commandline1 = "print"; 
+	            String commandline2 = "insert";
+	            String commandline3	= "remove";
+	            String[] tokens = str.split(" ");
+	            for (String token:tokens) {
+	            	 if (commandline1.contains(token)) { 
+	            		 print(memoryPool,recordArray,tokens, doublelinkedlist);
+	        			   } 
+	            	 else if (commandline2.contains(token)) { 
+	            		 int recnum = Integer.parseInt(tokens[1]);
+	            		 if(recnum>=0 && recnum<numOfRecords){
+	            		 TestRemoveAndInsert(recordArray, memoryPool, tokens,doublelinkedlist);
+	            		 }
+	            		 else System.out.println("insert: "+recnum+" unsuccessul due to out-of-range recnum");
+	            	 }
+	            	 else if (commandline3.contains(token)) { 
+	            		 int recnum = Integer.parseInt(tokens[1]);
+	            		 if(recnum>=0 && recnum<numOfRecords){
+	            			 if(recordArray[recnum]!=-1){
+	            		 System.out.println("remove"+recnum+":"+" successful");
+	            		 remove(recnum,memoryPool,recordArray,doublelinkedlist);
+	            			 }
+	            			 else{
+	            				 System.out.println("remove"+recnum+":"+"  unsuccessul due to out-of-range recnum");
+	            			 }
+	            		 }
+	            		 else System.out.println("remove: "+recnum+" unsuccessul due to out-of-range recnum");
+	        			   } 
+	            }
+	        }
+	        sc.close();
+	    } 
+	    catch (FileNotFoundException e) {
+	        e.printStackTrace();
+	    }	
+	}
+	
+	private static void TestRemoveAndInsert(int[] recordArray, byte[] memoryPool, String[] tokens,DoublyLinkedList doublelinkedlist) {
+		    int recnum = Integer.parseInt(tokens[1]);
+			int x = Integer.parseInt(tokens[2]);
+			int y = Integer.parseInt(tokens[3]);
+			byte[] bytex= ByteBuffer.allocate(4).putInt(x).array();
+			byte[] bytey= ByteBuffer.allocate(4).putInt(y).array();
+			byte[] City = tokens[4].getBytes();
+			int size = bytex.length+bytey.length+City.length+1;
+			if(recordArray[recnum]!=-1){
+				remove(recnum,memoryPool,recordArray,doublelinkedlist);
+				TestRemoveAndInsert(recordArray, memoryPool,tokens,doublelinkedlist);
+				}
+			else {
+				int FitIndex = doublelinkedlist.Fitposition(size);
+				if(FitIndex==-1){
+					System.out.println("insert "+recnum+" "+tokens[2]+" "+tokens[3]+" "+tokens[4]+":" +"unsuccessful due to no memory available");
+				}
+				else
+				{
+					doublelinkedlist.remove(FitIndex, size);
+					insertMmeoryPoolAndRecordArray(FitIndex, bytex, bytey,City,memoryPool, recnum,recordArray,tokens);
+					doublelinkedlist.ordersize();
+				}
+			}
+			}
+
+	private static void insertMmeoryPoolAndRecordArray( int FitIndex, byte[] bytex, byte[] bytey,byte[] City,byte[] memoryPool, int recnum,int recordArray[],String [] tokens){
+   			byte citylength = (byte)(bytex.length+bytey.length+City.length);
+   			    int countbyte = FitIndex;
+				memoryPool[countbyte]=citylength;
+				countbyte++;
+	   			for(int i=0; i<bytex.length;i++){
+	   				memoryPool[countbyte]=bytex[i];
+	   				countbyte++;
+	   			}
+	   			for(int i=0; i<bytey.length;i++){
+	   				memoryPool[countbyte]=bytey[i];
+	   				countbyte++;
+	   			}
+	   			for(int i=0; i<City.length;i++){
+	   				memoryPool[countbyte]=City[i];
+	   				countbyte++;
+	   			}
+   			recordArray[recnum]=FitIndex;
+   			System.out.println("insert "+recnum+" "+tokens[2]+" "+tokens[3]+" "+tokens[4]+" : successful");
+   		} 
+	private static void remove(int recnum,byte [] memoryPool,int [] recordArray,DoublyLinkedList doublelinkedlist){
+		int position = recordArray[recnum];
+		int size = memoryPool[recordArray[recnum]]+1;
+		doublelinkedlist.addFirst(position, size);
+		recordArray[recnum]=-1;
+		System.out.println("remove"+recnum+":"+" successful");
+		doublelinkedlist.ordersize();
+	}
+
+	private static void print(byte [] memoryPool, int [] recordArray, String[] tokens,DoublyLinkedList doublelinkedlist) throws UnsupportedEncodingException{
+		if(tokens.length==1)
+			{
+			System.out.println("print");
+			for(int i = 0; i<recordArray.length;i++){
+			if(recordArray[i]!=-1){
+			int firstAddress = recordArray[i];
+			int size = memoryPool[firstAddress];
+			int k=firstAddress;
+			int citysize=size-8;
+			byte[] arrcity= new byte[citysize];
+				byte[] arrx = {memoryPool[k+1], memoryPool[k+2],memoryPool[k+3],memoryPool[k+4]};
+				ByteBuffer wrappedx = ByteBuffer.wrap(arrx);
+				int numx = wrappedx.getInt();
+				byte[] arry = {memoryPool[k+5], memoryPool[k+6],memoryPool[k+7],memoryPool[k+8]};
+				ByteBuffer wrappedy = ByteBuffer.wrap(arry);
+				int numy = wrappedy.getInt();
+				k=k+9;
+				for(int countstring=0;k<=firstAddress+size;k++,countstring++){
+					arrcity[countstring] = memoryPool[k];
+				}
+				String cityname = new String(arrcity, "UTF-8");
+				System.out.println("record"+" "+i+" "+" "+numx+" "+" "+numy+" "+cityname+" "+":"+"handle"+" "+firstAddress);
+			}
+			}
+			 doublelinkedlist.printList();
+			}
+			
+		else{
+			System.out.print("print"+tokens[1]+" "+":");
+			int index = Integer.parseInt(tokens[1]);
+			if(recordArray[index]!=-1){
+			int firstAddress = recordArray[index];
+			int size = memoryPool[firstAddress];
+			int k=firstAddress;
+			int citysize=size-8;
+			byte[] arrcity= new byte[citysize];
+				byte[] arrx = {memoryPool[k+1], memoryPool[k+2],memoryPool[k+3],memoryPool[k+4]};
+				ByteBuffer wrappedx = ByteBuffer.wrap(arrx);
+				int numx = wrappedx.getInt();
+				byte[] arry = {memoryPool[k+5], memoryPool[k+6],memoryPool[k+7],memoryPool[k+8]};
+				ByteBuffer wrappedy = ByteBuffer.wrap(arry);
+				int numy = wrappedy.getInt();
+				k=k+9;
+				for(int countstring=0;k<=firstAddress+size;k++,countstring++){
+					arrcity[countstring] = memoryPool[k];
+				}
+				String cityname = new String(arrcity);
+				System.out.println(" "+numx+" "+" "+numy+" "+cityname+" "+":"+"handle"+" "+firstAddress);
+			}
+			else
+				System.out.println("no record at "+tokens[1]);	
+		}	
+	
+		}
+}
