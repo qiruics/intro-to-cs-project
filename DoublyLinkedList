@@ -1,0 +1,168 @@
+public class DoublyLinkedList {
+	
+	private FreeBlockNode head;
+	private  FreeBlockNode tail;
+	public void setHead(FreeBlockNode head) {
+		this.head = head;
+	}
+	public FreeBlockNode getTail() {
+		return tail;
+	}
+	public void setTail(FreeBlockNode tail) {
+		this.tail = tail;
+	}
+	public class  FreeBlockNode {
+
+		private int firstAdress;
+		private int size;
+		private  FreeBlockNode next;
+		private  FreeBlockNode previous;
+
+		public  FreeBlockNode(int firstAddress, int size,  FreeBlockNode prev,  FreeBlockNode next) {
+			setfirstAddress(firstAddress);
+			setSize(size);
+			setPrevious(prev);
+			setNext(next);
+		}
+
+		public int getPosition() {
+			return  firstAdress;
+		}
+
+		public void setfirstAddress(int firstAddress) {
+			 this.firstAdress = firstAddress;
+		}
+
+		public  FreeBlockNode getNext() {
+			return next;
+		}
+
+		public void setNext( FreeBlockNode next) {
+			this.next = next;
+		}
+
+		public  FreeBlockNode getPrevious() {
+			return previous;
+		}
+
+		public void setPrevious( FreeBlockNode previous) {
+			this.previous = previous;
+		}
+
+		public void setSize(int size) {
+			this.size = size;
+		}
+
+		public int getSize() {
+			return size;
+		}
+	}
+
+	public DoublyLinkedList (int position, int size) {
+		head = new FreeBlockNode (-1, -1, null, null);
+		tail = new FreeBlockNode (-1, -1, null, null);
+		FreeBlockNode first = new FreeBlockNode(position, size, head, tail);
+		head.setNext(first);
+		tail.setPrevious(first);
+	}
+
+	public void addFirst(int position, int size) {
+		FreeBlockNode newBlocknode = new FreeBlockNode(position,size,null,null);
+		newBlocknode.next=head.next;
+		head.next.previous=newBlocknode;
+		newBlocknode.previous=head;
+		head.next=newBlocknode;
+		FreeBlockNode change=merge(position, size);
+		newBlocknode.setfirstAddress(change.getPosition());
+		newBlocknode.setSize(change.getSize());
+	}
+	public FreeBlockNode merge(int position, int size) {
+		// TODO Auto-generated method stub
+		FreeBlockNode iterator = head.next;
+		while (iterator!=tail){
+			if((position+size)==iterator.getPosition()){
+				size=size+iterator.getSize();
+				iterator.previous.next=iterator.next;
+				iterator.next.previous=iterator.previous;
+				break;
+			}
+			else if((iterator.getSize()+iterator.getPosition())==position){
+				size=size+iterator.getSize();
+				position=iterator.getPosition();
+				iterator.previous.next=iterator.next;
+				iterator.next.previous=iterator.previous;
+				break;
+			}
+			iterator=iterator.next;
+		}
+		FreeBlockNode newNode = new FreeBlockNode(position,size,null,null);
+		return newNode;
+	}
+
+	public void remove(int position, int size) {
+		FreeBlockNode node = head.next;
+				int diff = node.getSize() - size;
+				if (diff == 0) {
+					head.next = node.next;
+					node.next.previous = head;
+				}
+				else {
+					node.setfirstAddress(position+size);
+					node.setSize(diff);
+		}
+	}
+
+	public void printList() {
+		System.out.println("Free block:");
+		FreeBlockNode iterator = head.next;
+		while (iterator != tail) {
+			System.out.println("[" + iterator.getPosition() + ", " + (iterator.getPosition() + 
+					iterator.getSize() - 1) + "]" +":"+  iterator.getSize() + " bytes");
+			iterator = iterator.next;
+		}
+	}
+
+	public int Fitposition(int size) {
+		int Fitposition = -1;
+		if (head.next.getSize()>= size) {
+				Fitposition = head.next.getPosition();
+			}
+		return Fitposition;
+	}//返回首地址
+	public void ordersize(){
+		FreeBlockNode node1 = head.next;
+		FreeBlockNode node2 = node1.next;
+		//FreeBlockNode node3 = node2.next;
+		while(node1.getSize()<=node2.getSize() && node2!=null){
+			node2=node2.next;
+			if(node1.getSize()>node2.getSize()){
+			head.next = node1.next;
+			node1.next.previous = head;//delete the node1
+			node1.next=node2;
+			node1.previous=node2.previous;
+			node2.previous.next=node1;
+			node2.previous=node1;//insert the node1 in front of the node3
+			break;
+		}
+	}
+		sizeequal();
+	}
+	public void sizeequal(){
+		FreeBlockNode node1 = head.next;
+		FreeBlockNode node2 = node1.next;
+		while(node1!=tail && node2!=tail){
+			if(node1.getSize()==node2.getSize()){
+				if(node1.getPosition()>node2.getPosition()){
+					node2.previous=node1.previous;
+					node1.previous.next=node2;
+					node1.next=node2.next;
+					node2.next.previous=node1;
+					node1.previous=node2;
+					node2.next=node1;
+				}
+		}
+			node1=node1.next;
+			node2=node2.next;
+	}
+	}
+}
