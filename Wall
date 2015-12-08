@@ -1,0 +1,22 @@
+/*
+ * “I pledge that this assignment has been completed in compliance with the Graduate Honor Code
+ *and that I have neither given nor received any unauthorized aid on this work. Further, I did not
+ *use any source codes from any other unauthorized sources, either modified or unmodified. The
+ *submitted programming assignment is solely done by me and is my original work.”
+ *author:Qirui Liu 
+ * G36316325
+ * 12/4/2015
+ * */
+public class Wall {
+	public final static int Horizon = 1;
+	public final static int Vertical = -1;
+	public int x;
+	public int y;
+	public int wallType;
+	
+	public Wall(int x, int y, int wallType){
+		this.x = x;
+		this.y = y;
+		this.wallType = wallType;
+	}
+}
