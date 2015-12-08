@@ -1,0 +1,206 @@
+/*
+ * “I pledge that this assignment has been completed in compliance with the Graduate Honor Code
+ *and that I have neither given nor received any unauthorized aid on this work. Further, I did not
+ *use any source codes from any other unauthorized sources, either modified or unmodified. The
+ *submitted programming assignment is solely done by me and is my original work.”
+ *author:Qirui Liu 
+ * G36316325
+ * 12/4/2015
+ * */
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class BFS {
+	protected int horiz;
+	 protected int vert;
+	 protected static int k=0;
+	 protected static boolean[][] hWalls;
+	 protected static boolean[][] vWalls;
+	 protected static boolean[][] visited;
+	 protected static char[][] visitWall;
+	 protected static int[][] visitWalls;
+	 protected static String[][] visitpath;
+	 protected static String str;
+	 Queue<String> queue = new LinkedList<String>();
+	 public BFS(int horiz, int vert, boolean vWalls[][], boolean hWalls[][]){
+		 this.horiz=horiz;
+		 this.vert=vert;
+		 BFS.vWalls=vWalls;
+		 BFS.hWalls=hWalls;
+	 }
+	 public void searchchildren(){
+		 str=queue.poll();
+		 //System.out.print(str+"  ");
+		 String[] items = str.split(",");
+		 int[] results = new int[items.length];
+		 for (int n = 0; n < items.length; n++) {
+		         results[n] = Integer.parseInt(items[n]);
+		 }	
+		 int i=results[0];
+		 int j=results[1];
+		 
+			//forward
+				if(i<horiz-1 && i+1>=0  && !vWalls[i][j] && !visited[i+1][j]){
+					visitWalls[i+1][j]=k;
+					visited[i+1][j] = true;
+					visitpath[i+1][j]=(i)+","+j; 
+					//System.out.print((i+1)+","+j+" "+visited[i+1][j]);
+					queue.add((i+1)+","+j);
+					k++;
+				}
+				//down
+				if(j<vert-1 && j+1>=0 && !hWalls[i][j] && !visited[i][j+1]){
+					visitWalls[i][j+1]=k;
+					visited[i][j+1]=true;
+					visitpath[i][j+1]=(i)+","+j;  
+					//System.out.print(i+","+(j+1)+" "+visited[i][j+1]);
+					queue.add(i+","+(j+1));
+					k++;
+				}
+               //up
+					if(j-1>=0 && !hWalls[i][j-1] && !visited[i][j-1]){
+						visitWalls[i][j-1]=k;
+						visited[i][j-1]=true;
+						visitpath[i][j-1]=(i)+","+j;
+						//System.out.print(i+","+(j-1)+" "+visited[i][j-1]);
+						queue.add(i+","+(j-1));
+						k++;
+					}
+			 //backward
+				 if( i-1>=0 && !vWalls[i-1][j] && !visited[i-1][j]){
+					 visitWalls[i-1][j]=k;
+					  visited[i-1][j] = true;
+					  visitpath[i-1][j]=(i)+","+j; 
+					  //System.out.print((i-1)+","+j+" "+visited[i-1][j]);
+					  queue.add((i-1)+","+j);
+					  k++;
+					}
+		}
+
+	 public void BFSTraverse(){
+		 visited = new boolean[horiz][vert];
+		 visitWalls = new int[horiz][vert];
+		 visitpath = new String[horiz][vert];
+		 visitWall = new char[horiz][vert];
+		 for( int i =0; i < horiz; i++)
+			 for(int j = 0; j < vert; j++){
+				  visitWalls[i][j] = -1;
+				  visited[i][j] = false;
+				  visitpath[i][j] = (-1)+","+(-1);
+				  visitWall[i][j]=' ';
+			 }
+		 visitWalls[0][0]=k;//initial part
+		 visited[0][0]=true;
+		 visitpath[0][0] = 0+","+0;
+		 k++;
+		 queue.add(0+","+0);//initial
+		 while(!visited[horiz-1][vert-1]){
+		 searchchildren();//initial
+		 }
+		 System.out.println();
+				 String s = "+ ";
+				    // Print the top exterior wall.
+				    for (int i = 0; i < horiz-1; i++) {
+				      s = s + "+-";
+				    }
+				    s = s + "+\n|";
+
+				    // Print the maze interior.
+				    for (int j = 0; j < vert; j++) {
+				      // Print a row of cells and vertical walls.
+				      for (int i = 0; i < horiz - 1; i++) {
+				    	  if(visitWalls[i][j]==-1){
+				    		  s=s+" ";
+				    	  }
+				    	  else s = s+(visitWalls[i][j]%10); 
+				        if (vWalls[i][j]) {
+				          s = s + "|";
+				        } else {
+				          s = s + " ";
+				        }
+				      }
+				      if(visitWalls[horiz-1][j]==-1){
+			    		  s=s+" ";
+			    	  }
+			    	  else s = s+(visitWalls[horiz-1][j]%10); 
+				      s = s + "|\n+";
+				      if (j < vert - 1) {
+				        // Print a row of horizontal walls and wall corners.
+				        for (int i = 0; i < horiz; i++) {
+				          if (hWalls[i][j]) {
+				            s = s + "-+";
+				          } else {
+				            s = s + " +";
+				          }
+				        }
+				        s = s + "\n|";
+				      }
+				    }
+
+				    // Print the bottom exterior wall.  (Note that the first corner has
+				    // already been printed.)
+				    for (int i = 0; i < horiz-1; i++) {
+				      s = s + "-+";
+				    }
+		    System.out.println( s + " +\n");
+		    System.out.println("------------------------------------------------");
+		    BFSPound();
+	 }
+
+	private void BFSPound() {
+		int i;
+		int j;
+		int m = horiz-1;
+		int n = vert-1;
+		String vis =visitpath[m][n];
+		int[] result =null;
+		visitWall[horiz-1][vert-1]='#';
+		 while(visitWall[0][0]!='#'){
+				 String[] item = vis.split(",");
+				 result = new int[item.length];
+				 for (int count = 0; count < item.length; count++) {
+				         result[count] = Integer.parseInt(item[count]);
+				 }	
+				 if(result[0]!=-1 && result[1]!=-1){
+				 visitWall[result[0]][result[1]]='#';
+				 //System.out.println(visitWall[result[0]][result[1]]);
+				 vis=visitpath[result[0]][result[1]];}		 
+		}
+		 String s = "+ ";
+		    // Print the top exterior wall.
+		    for (i = 0; i < horiz-1; i++) {
+		      s = s + "+-";
+		    }
+		    s = s + "+\n|";
+
+		    // Print the maze interior.
+		    for (j = 0; j < vert; j++) {
+		      // Print a row of cells and vertical walls.
+		      for (i = 0; i < horiz - 1; i++) {
+		    	  s=s+visitWall[i][j];
+		        if (vWalls[i][j]) {
+		          s = s + "|";
+		        } else {
+		          s = s + " ";
+		        }
+		      }
+		      s = s+visitWall[horiz-1][j]; 
+		      s = s + "|\n+";
+		      if (j < vert - 1) {
+		        // Print a row of horizontal walls and wall corners.
+		        for (i = 0; i < horiz; i++) {
+		          if (hWalls[i][j]) {
+		            s = s + "-+";
+		          } else {
+		            s = s + " +";
+		          }
+		        }
+		        s = s + "\n|";
+		      }
+		    }
+		    for (i = 0; i < horiz-1; i++) {
+		      s = s + "-+";
+		    }
+		    System.out.println( s + " +\n");
+	 }
+}
