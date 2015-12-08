@@ -1,0 +1,307 @@
+/*
+ * “I pledge that this assignment has been completed in compliance with the Graduate Honor Code
+ *and that I have neither given nor received any unauthorized aid on this work. Further, I did not
+ *use any source codes from any other unauthorized sources, either modified or unmodified. The
+ *submitted programming assignment is solely done by me and is my original work.”
+ *author:Qirui Liu 
+ * G36316325
+ * 12/4/2015
+ * */
+import java.util.Stack;
+public class DFS {
+	 protected int horiz;
+	 protected int vert;
+	 protected int k =0;
+	 protected static boolean[][] hWalls;
+	 protected static boolean[][] vWalls;
+	 protected static boolean[][] visited;
+	 protected static String str;
+	 Stack<String> stack = new Stack< String>();
+	 public DFS(int horiz, int vert, boolean vWalls[][], boolean hWalls[][]){
+		 this.horiz=horiz;
+		 this.vert=vert;
+		 DFS.vWalls=vWalls;
+		 DFS.hWalls=hWalls;
+	 }
+	public void forward(int [][] cellVisited,int i,int j){
+		//System.out.println();
+		//System.out.print("forth");
+		if(!visited[horiz-1][vert-1]){
+		int h=0;
+			for(; h+i < horiz-1 ; h++){
+			if(!vWalls[i+h][j] && !visited[i+h+1][j]){
+				cellVisited[i+h+1][j]=k;
+				visited[i+h+1][j] = true;
+				//System.out.print("      i+h+1="+(i+h+1)+" "+"j="+j+" "+" k="+k);
+				stack.push((i+h+1)+","+j);
+				k++;
+			}
+			else break;
+			}
+			if(!visited[horiz-1][vert-1]){
+		if(j<vert-1 && !hWalls[i+h][j] && !visited[i+h][j+1] ){
+		down(cellVisited,i+h,j);}
+		
+		else if(j-1 >= 0 && !hWalls[i+h][j-1] && !visited[i+h][j-1]){
+			up(cellVisited,i+h,j-1);
+		}
+		else  {
+			 stack.pop();
+			 str = stack.peek();
+			// System.out.print("        str="+str);
+			 String[] items = str.split(",");
+			 int[] results = new int[items.length];
+			 for (int n = 0; n < items.length; n++) {
+			         results[n] = Integer.parseInt(items[n]);
+			 }	
+			 if(results[1]<vert-1 && !hWalls[results[0]][results[1]] && !visited[results[0]][results[1]+1]){
+				 down(cellVisited,results[0],results[1]);}
+			 else
+			 up(cellVisited,results[0],results[1]-1);
+			 }
+		}
+	}
+	}
+	
+	public void down(int [][] cellVisited,int i,int j){
+		//System.out.println();
+		//System.out.print("down");
+		if(!visited[horiz-1][vert-1]){
+		int v=0;
+				for(; v+j < vert-1 ;v++){
+					if(!hWalls[i][j+v] && !visited[i][j+v+1]){
+						cellVisited[i][j+v+1]=k;
+						visited[i][j+v+1]=true;
+						//System.out.print("      i="+i+" "+"j+v+1="+(j+v+1)+" k="+k);
+						stack.push(i+","+(j+v+1));
+						k++;
+					}
+					else break;
+				}
+				if(!visited[horiz-1][vert-1]){
+				if(i<horiz-1 && !vWalls[i][j+v] && !visited[i+1][j+v]){
+					forward(cellVisited,i,j+v);
+				}
+				else if(i-1 >=0 && !vWalls[i-1][j+v] && !visited[i-1][j+v]){
+					back(cellVisited,i-1,j+v);
+				}
+				else{
+					stack.pop();
+					 str = stack.peek();
+					 //System.out.print("      str="+str);
+					 String[] items = str.split(",");
+					 int[] results = new int[items.length];
+					 for (int n = 0; n < items.length; n++) {
+					         results[n] = Integer.parseInt(items[n]);
+					 }	
+					 if(results[0]<horiz-1 && !vWalls[results[0]][results[1]] &&!visited[results[0]+1][results[1]]){
+					 forward(cellVisited,results[0],results[1]);
+					 }
+					 else back(cellVisited,results[0]-1,results[1]);
+				}
+		}
+		}
+			}
+	
+	public void up(int [][] cellVisited,int i,int j){//problem
+		//System.out.println();
+		//System.out.print("up");
+		if(!visited[horiz-1][vert-1]){
+		int v=0;
+		for(; j-v >= 0 ;v++){
+			if(!hWalls[i][j-v] && !visited[i][j-v]){
+				cellVisited[i][j-v]=k;
+				visited[i][j-v]=true;
+				//System.out.print("         i="+(i)+" "+"j-v="+(j-v)+" k="+k);
+				stack.push(i+","+(j-v));
+				k++;
+			}
+			else break;
+	}
+		//System.out.print("  after       i="+(i)+" "+"j-v="+(j-v));
+		if(!visited[horiz-1][vert-1]){
+		if(i<horiz-1 && !vWalls[i][j-v+1] && !visited[i+1][j-v+1]){
+			forward(cellVisited,i,j-v+1);
+		}
+		else if(i-1 >=0 && !vWalls[i-1][j-v+1] && !visited[i-1][j-v+1]){
+			back(cellVisited,i-1,j-v+1);
+		}
+		else {
+			stack.pop();
+			 str = stack.peek();
+			 //System.out.print("      str="+str);
+			String[] items = str.split(",");
+			 int[] results = new int[items.length];
+			 for (int n = 0; n < items.length; n++) {
+			         results[n] = Integer.parseInt(items[n]);
+			 }	
+			
+			 if(results[0]<horiz-1 && !vWalls[results[0]][results[1]]&&!visited[results[0]+1][results[1]]){
+				 forward(cellVisited,results[0],results[1]);}
+				 else back(cellVisited,results[0]-1,results[1]);
+			}
+		}
+		}
+}
+	
+	public void back(int [][] cellVisited,int i,int j){
+		//System.out.println();
+		//System.out.print("back");
+		if(!visited[horiz-1][vert-1]){
+		int h=0;
+		for(; i-h >=0 ; h++){
+			if(!vWalls[i-h][j] && !visited[i-h][j]){
+				cellVisited[i-h][j]=k;
+				visited[i-h][j] = true;
+				//System.out.print("       i-h="+(i-h)+" "+"j="+j+" "+"k="+k);
+				stack.push((i-h)+","+j);
+				k++;
+			}
+			else break;
+			}
+		
+		if(!visited[horiz-1][vert-1]){
+		    if(j<vert-1 && !hWalls[i-h+1][j] && !visited[i-h+1][j+1] ){
+		    	down(cellVisited,i-h+1,j);}
+			
+		    else if(j-1 >= 0 && !hWalls[i-h+1][j-1] && !visited[i-h+1][j-1]){//problem
+				up(cellVisited,i-h+1,j-1);
+			}
+			else {
+				stack.pop();
+				 str = stack.peek();
+				 //System.out.print("       str="+str);
+				 String[] items = str.split(",");
+				 int[] results = new int[items.length];
+				 for (int n = 0; n < items.length; n++) {
+				         results[n] = Integer.parseInt(items[n]);
+				 }	
+				
+				 if(results[1]<vert-1 && !hWalls[results[0]][results[1]] && !visited[results[0]][results[1]+1]){
+					 down(cellVisited,results[0],results[1]);}
+				 else
+				 up(cellVisited,results[0],results[1]-1);
+			}
+		}
+		}
+	}
+
+	 public void DFSTraverse(){
+		 int[][] visitWalls = new int[horiz][vert];
+		 visited = new boolean[horiz][vert];
+		 for( int i =0; i < horiz; i++)
+			 for(int j = 0; j < vert; j++){
+				  visitWalls[i][j] = -1;
+				  visited[i][j] = false;
+				  //System.out.println(visitWalls[i][j]);
+			 }
+		 visitWalls[0][0]=k;//initial part
+		 visited[0][0]=true;
+		 k++;
+		 stack.push(0+","+0);
+		 forward(visitWalls,0,0);
+		 System.out.println();
+
+				 String s = "+ ";
+				    // Print the top exterior wall.
+				    for (int i = 0; i < horiz-1; i++) {
+				      s = s + "+-";
+				    }
+				    s = s + "+\n|";
+
+				    // Print the maze interior.
+				    for (int j = 0; j < vert; j++) {
+				      // Print a row of cells and vertical walls.
+				      for (int i = 0; i < horiz - 1; i++) {
+				    	  if(visitWalls[i][j]==-1){
+				    		  s=s+" ";
+				    	  }
+				    	  else s = s+(visitWalls[i][j]%10); 
+				        if (vWalls[i][j]) {
+				          s = s + "|";
+				        } else {
+				          s = s + " ";
+				        }
+				      }
+				      if(visitWalls[horiz-1][j]==-1){
+			    		  s=s+" ";
+			    	  }
+			    	  else s = s+(visitWalls[horiz-1][j]%10); 
+				      s = s + "|\n+";
+				      if (j < vert - 1) {
+				        // Print a row of horizontal walls and wall corners.
+				        for (int i = 0; i < horiz; i++) {
+				          if (hWalls[i][j]) {
+				            s = s + "-+";
+				          } else {
+				            s = s + " +";
+				          }
+				        }
+				        s = s + "\n|";
+				      }
+				    }
+
+				    // Print the bottom exterior wall.  (Note that the first corner has
+				    // already been printed.)
+				    for (int i = 0; i < horiz-1; i++) {
+				      s = s + "-+";
+				    }
+		    System.out.println( s + " +\n");
+		    System.out.println("------------------------------------------------");
+		    DFSPound(visitWalls);
+	 }
+	 
+	 public void DFSPound(int[][] visitWalls){
+		 char[][] visitWall = new char[horiz][vert];
+		 for( int i =0; i < horiz; i++)
+			 for(int j = 0; j < vert; j++){
+				  visitWall[i][j] = ' ';
+			 }
+		 while(!stack.isEmpty()){
+		 str=stack.pop();
+		 //System.out.println(str);
+		 String[] items = str.split(",");
+		 int[] results = new int[items.length];
+		 for (int n = 0; n < items.length; n++) {
+		         results[n] = Integer.parseInt(items[n]);
+		 }	
+		 visitWall[results[0]][results[1]]='#';
+		 }
+		 String s = "+ ";
+		    // Print the top exterior wall.
+		    for (int i = 0; i < horiz-1; i++) {
+		      s = s + "+-";
+		    }
+		    s = s + "+\n|";
+
+		    // Print the maze interior.
+		    for (int j = 0; j < vert; j++) {
+		      // Print a row of cells and vertical walls.
+		      for (int i = 0; i < horiz - 1; i++) {
+		    	  s=s+visitWall[i][j];
+		        if (vWalls[i][j]) {
+		          s = s + "|";
+		        } else {
+		          s = s + " ";
+		        }
+		      }
+		      s = s+visitWall[horiz-1][j]; 
+		      s = s + "|\n+";
+		      if (j < vert - 1) {
+		        // Print a row of horizontal walls and wall corners.
+		        for (int i = 0; i < horiz; i++) {
+		          if (hWalls[i][j]) {
+		            s = s + "-+";
+		          } else {
+		            s = s + " +";
+		          }
+		        }
+		        s = s + "\n|";
+		      }
+		    }
+		    for (int i = 0; i < horiz-1; i++) {
+		      s = s + "-+";
+		    }
+ System.out.println( s + " +\n");
+	 }
+}
