@@ -1,0 +1,39 @@
+/*
+ * “I pledge that this assignment has been completed in compliance with the Graduate Honor Code
+ *and that I have neither given nor received any unauthorized aid on this work. Further, I did not
+ *use any source codes from any other unauthorized sources, either modified or unmodified. The
+ *submitted programming assignment is solely done by me and is my original work.”
+ *author:Qirui Liu 
+ * G36316325
+ * 12/4/2015
+ * */
+public class DisjointSets {
+
+  private int[] array;
+
+  public DisjointSets(int numElements) {
+    array = new int [numElements];
+    for (int i = 0; i < array.length; i++) {
+      array[i] = -1;
+    }
+  }
+
+  public void union(int root1, int root2) {
+    if (array[root2] < array[root1]) {             
+      array[root2] += array[root1];  
+      array[root1] = root2;                  
+    } else {                                 
+      array[root1] += array[root2];      
+      array[root2] = root1;                              
+    }
+  }
+
+  public int find(int x) {
+    if (array[x] < 0) {
+      return x;                        
+    } else {
+      array[x] = find(array[x]);
+      return array[x];                                     
+    }
+  }
+}
